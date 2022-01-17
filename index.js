@@ -1,3 +1,52 @@
+
+
+// Functions - Move those to external files
+let x_initial = window.innerWidth*3/7
+let y_initial = window.innerHeight - 55
+
+
+function setOnhoverShow(card){
+    card.setInteractive().on('pointerover',()=>{
+        card.y -= 40
+        card.x -= 30
+    })
+    card.setInteractive().on('pointerout',()=>{
+        card.y += 40
+        card.x += 30
+    })
+    card.input.alwaysEnabled = true;
+}
+
+function setScale(card, scaleFactor){
+    card.setScale(scaleFactor)
+}
+
+function deckCurve(playerDeck){
+    playerDeck.map((card,index)=>{
+        card.x = x_initial
+        card.y = y_initial
+        console.log(index - Math.floor(playerDeck.length/2))
+        card.angle = 2*(index - Math.floor(playerDeck.length/2))
+        card.y += 5*(index- Math.floor(playerDeck.length/2))**2 
+        card.x += 45*index
+    })
+    
+}
+
+function loadCards(gameScene){
+    gameDeck.map((card,index)=>{
+        gameScene.load.image(card, `assets/${card}.png`);
+    })
+}
+
+function initialHand(card,playerDeck){
+    setOnhoverShow(card)
+    setScale(card,0.5)
+    deckCurve(playerDeck)
+}
+
+
+// Game
 var config = {
     type: Phaser.AUTO,
     width: window.innerWidth,
@@ -15,38 +64,46 @@ var config = {
     }
 };
 
+
+function addCardToDeck(object){
+    let lastIndexGameDeck = gameDeck.length - 1;
+    playerDeck.push(object.add.sprite(x_initial, y_initial, gameDeck[lastIndexGameDeck]));
+
+    let lastIndexPlayerDeck = playerDeck.length - 1;
+    let card = playerDeck[lastIndexPlayerDeck]
+    setOnhoverShow(card)
+    setScale(card,0.5)
+    deckCurve(playerDeck)
+}
+
 var game = new Phaser.Game(config);
+
+let gameDeck = ["blue-card","green-card","pink-card","yellow-card","red-card"]
+let playerDeck = []
 
 function preload ()
 {
-    this.load.image('blue-card', 'assets/blue-card.png');
-    this.load.image('green-card', 'assets/green-card.png');
-    this.load.image('pink-card', 'assets/pink-card.png');
-    this.load.image('yellow-card', 'assets/yellow-card.png');
+    loadCards(this)
 }
 
-function create ()
-{
-    let x_initial = window.innerWidth/2 - 100
-    let y_initial = window.innerHeight
+function create (){
     let spacing = 60
-    let scaleFactor = 0.5
-    blueCard = this.add.sprite(x_initial, y_initial+10, 'blue-card');
-    greenCard = this.add.sprite(x_initial+spacing, y_initial, 'green-card');
-    pinkCard = this.add.sprite(x_initial+2*spacing, y_initial, 'pink-card');
-    yellowCard = this.add.sprite(x_initial+3*spacing, y_initial+10, 'yellow-card');
-    blueCard.setScale(scaleFactor)
-    greenCard.setScale(scaleFactor)
-    pinkCard.setScale(scaleFactor)
-    yellowCard.setScale(scaleFactor)
-    blueCard.rotation -= 0.2
-    greenCard.rotation -= 0.1
-    pinkCard.rotation += 0.1
-    yellowCard.rotation += 0.2
-    
+    let object = this
+
+
+    gameDeck.map((card,index)=>{
+        if(index < gameDeck.length - 1){
+            playerDeck.push(this.add.sprite(x_initial + index*spacing, y_initial+10, card));
+        }   
+    })
+
+    playerDeck.map((card,index)=>{
+        initialHand(card, playerDeck)
+    })
+
+    console.log(playerDeck)
 
     this.input.mouse.disableContextMenu();
-
     this.input.on('pointerup', function (pointer) {
 
         if (pointer.event.button === 0)
@@ -69,6 +126,8 @@ function create ()
         if (pointer.event.button === 0)
         {
             console.log('Left button pressed');
+            
+            addCardToDeck(object)
         }
         else if (pointer.event.button === 1)
         {
@@ -81,63 +140,10 @@ function create ()
 
     });
 
-
-    blueCard.setInteractive().on('pointerover',(item)=>{
-        console.log(item)
-        blueCard.y -= 40
-    })
-    blueCard.setInteractive().on('pointerout',(item)=>{
-        console.log(item)
-        blueCard.y += 40
-    })
-    blueCard.input.alwaysEnabled = true;
-
-    greenCard.setInteractive().on('pointerover',(item)=>{
-        console.log(item)
-        greenCard.y -= 40
-    })
-    greenCard.setInteractive().on('pointerout',(item)=>{
-        console.log(item)
-        greenCard.y += 40
-    })
-    greenCard.input.alwaysEnabled = true;
-
-    pinkCard.setInteractive().on('pointerover',(item)=>{
-        console.log(item)
-        pinkCard.y -= 40
-    })
-    pinkCard.setInteractive().on('pointerout',(item)=>{
-        console.log(item)
-        pinkCard.y += 40
-    })
-    pinkCard.input.alwaysEnabled = true;
-
-    yellowCard.setInteractive().on('pointerover',(item)=>{
-        console.log(item)
-        yellowCard.y -= 40
-    })
-    yellowCard.setInteractive().on('pointerout',(item)=>{
-        console.log(item)
-        yellowCard.y += 40
-    })
-    yellowCard.input.alwaysEnabled = true;
-
-
-   
-
 }
-
-
 
 function update(){
 
     
 }
 
-// utils
-  
-
-
-function loadCard(){
-
-}
